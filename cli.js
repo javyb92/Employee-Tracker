@@ -23,7 +23,7 @@ async function cli(){
         {
           type: "What would you like to do?",
           name: "list",
-          message: "choice ",
+          message: "choice",
 
         },
       ]).then(function(data) {
