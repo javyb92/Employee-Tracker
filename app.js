@@ -1,6 +1,5 @@
 var inquirer = require("inquirer");
-var mysql = require("mysql2/promise");
-const cTable = require('console.table');
+var mysql = require("mysql");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -23,7 +22,6 @@ var connection = mysql.createConnection({
 
 
 function companySearch(){
-
     inquirer
         .prompt({
             name: "action",
@@ -42,7 +40,7 @@ function companySearch(){
         .then(function(answer) {
             switch (answer.action) {
             case "View Departments":
-              viewDepartment();
+              viewDepartments();
               break;
       
             case "View Roles":
@@ -64,30 +62,88 @@ function companySearch(){
             case "Add Employees":
               addEmployees();
               break;
-            
+
+            case "Update Employee Role":
+              employeeUpdateRole();
+              break;
+
             case "exit":
               connection.end();
               break;
             }
           });
-
-
-
 }
 
-
-
-//ADD DEPARTMENTS
-
-//ADD ROLES
-
-//ADD EMPLOYEES
-
 //VIEW DEPARTMENTS
+function viewDepartments(){
+    connection.query("SELECT * FROM department", function(err, res) {
+        if (err) throw err;
+        console.log(res);
+        connection.end();
+    });
+}
+// //VIEW ROLES
+function viewRoles(){connection.query("SELECT * FROM role", function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    connection.end();
+});
+}
+// //VIEW EMPLOYEES
+function viewEmployees(){connection.query("SELECT * FROM employee", function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    connection.end();
+});
+}
+// //ADD DEPARTMENTS
+function addDepartments(){inquirer.prompt([
+  
 
-//VIEW ROLES
+        
+// //ADD ROLES
+// function addRoles()
+//         inquirer.prompt("What do you want to call this role?")
 
-//VIEW EMPLOYEES
+// //ADD EMPLOYEES
+function addEmployees(){inquirer.prompt([
+  {
+    name: "first_name",
+    type: "input",
+    message: "Please Enter employees first name"
+  },
+  {
+    name: "last_name",
+    type: "input",
+    message: "Please Enter employees last name"
+  },
+  {
+    name: "employees_role",
+    type: "input",
+    message: "Please Enter employees role",
+    validate: function(value) {
+      if (isNaN(value) === false) {
+        return true;
+      }
+      return false;
+    }
+  }
+])
+.then(function(answer) {
+  connection.query(
+    "INSERT INTO employee SET ?",
+    {
+      first_name: answer.first_name,
+      last_name: answer.last_name,
+      role_id: answer.employees_role || 0,
+    },
+    function(err) {
+      if (err) throw err;
+      // start();
+    }
+  );
+});
+}
 
-//UPDATE EMPLOYEE ROLES
-
+// //UPDATE EMPLOYEE ROLES
+// employeeUpdateRole()
