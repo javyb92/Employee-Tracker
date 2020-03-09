@@ -34,6 +34,7 @@ function companySearch(){
                 "Add Departments",
                 "Add Roles",
                 "Add Employees",
+                "Delete Employee",
                 "exit" 
             ]
         })
@@ -52,7 +53,7 @@ function companySearch(){
               break;
       
             case "Add Departments":
-              addDepartments();
+              addDepartment();
               break;
 
             case "Add Roles":
@@ -67,12 +68,16 @@ function companySearch(){
               employeeUpdateRole();
               break;
 
+            case "Delete Employee":
+
+            deleteEmployee();
+
             case "exit":
               connection.end();
               break;
             }
           });
-}
+};
 
 //VIEW DEPARTMENTS
 function viewDepartments(){
@@ -95,15 +100,31 @@ function viewEmployees(){connection.query("SELECT * FROM employee", function(err
     console.table(res);
     connection.end();
 });
-}
+};
 // //ADD DEPARTMENTS
-function addDepartments(){inquirer.prompt([
-  
-
-        
-// //ADD ROLES
-// function addRoles()
-//         inquirer.prompt("What do you want to call this role?")
+function addDepartment(){inquirer.prompt([
+  {
+    name: "name",
+    type: "input",
+    message: "Please add a new department name",
+    validate: function(value) {
+      if (isNaN(value) === false) {
+        return true;
+      }
+      return false;
+    }
+  }
+])
+.then(function(answer) {
+    connection.query(
+      "INSERT INTO department SET ?",
+      {
+        name: answer.name,
+      },
+    );
+  });
+connection.end();
+}
 
 // //ADD EMPLOYEES
 function addEmployees(){inquirer.prompt([
@@ -143,7 +164,75 @@ function addEmployees(){inquirer.prompt([
     }
   );
 });
+connection.end();
 }
 
-// //UPDATE EMPLOYEE ROLES
-// employeeUpdateRole()
+// //ADD ROLES
+function addRoles(){inquirer.prompt([
+  {
+    name: "title",
+    type: "input",
+    message: "Please enter the position title"
+  },
+  {
+    name: "salary",
+    type: "input",
+    message: "Please enter the salary of this position"
+  },
+  {
+    name: "department_id",
+    type: "input",
+    message: "Please Enter the department id",
+    validate: function(value) {
+      if (isNaN(value) === false) {
+        return true;
+      }
+      return false;
+    }
+  }
+])
+.then(function(answer) {
+  connection.query(
+    "INSERT INTO role SET ?",
+    {
+      department_id: answer.department_id || 0,
+      title: answer.title,
+      salary: answer.salary || 0,
+    },
+    function(err) {
+      if (err) throw err;
+    }
+  );
+  connection.end();
+});
+}
+
+function deleteEmployee(){inquirer.prompt([
+  {
+    name: "last_name",
+    type: "input",
+    message: "Please Enter employees last name you want to delete",
+    validate: function(value) {
+      if (isNaN(value) === false) {
+        return true;
+      }
+      return false;
+    }
+  },
+]).then(function(answer) {
+  connection.query(
+    "DELETE FROM employee WHERE last_name = ?", {
+
+      last_name: answer.last_name,
+
+    },
+    function(err) {
+      if (err) throw err;
+    }
+  );
+
+  connection.end();
+
+});
+
+}
